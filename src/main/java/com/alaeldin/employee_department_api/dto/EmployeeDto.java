@@ -8,8 +8,7 @@ import lombok.Data;
 @Data
 public class EmployeeDto
 {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+
     private long id;
     @NotBlank(message = "First Name Is Required")
     private String firstName;
