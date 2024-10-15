@@ -1,6 +1,5 @@
 package com.alaeldin.employee_department_api.dto;
 
-import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
