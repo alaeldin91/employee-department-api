@@ -52,21 +52,22 @@ public class EmploymentController
     }
 
     @GetMapping("/get-all-employee")
-    public ResponseEntity<Page<EmployeeDto>> getAllEmployees(@RequestParam(defaultValue = "0")
-                                                                 int number
-            , @RequestParam(defaultValue = "10")
-                                                                 int size){
+    public ResponseEntity<PagedModel<EntityModel<EmployeeDto>>> getAllEmployees(@RequestParam(value = "number", defaultValue = "0") int number,
+                                                               @RequestParam(value = "size", defaultValue = "10") int size){
 
-        return new ResponseEntity<>(employeeService.getAllEmployees(number,size),HttpStatus.OK);
+        Page<EmployeeDto> employeePage  = employeeService.getAllEmployees(number,size);
+        PagedModel<EntityModel<EmployeeDto>> pagedModel = pagedResourcesAssembler.toModel(employeePage, EntityModel::of);
+
+        return new ResponseEntity<>(pagedModel,HttpStatus.OK);
     }
 
-    @GetMapping("/get_department_by_id/{id}")
+    @GetMapping("/get_employee_by_id/{id}")
     public ResponseEntity<EmployeeDto> getAllEmployeeById(@PathVariable("id") long id){
 
         return new ResponseEntity<>(employeeService.getEmployeeById(id),HttpStatus.OK);
     }
 
-    @GetMapping("delete/{id}")
+    @DeleteMapping("delete/{id}")
     public ResponseEntity<Map<String, String>> deleteEmployment(@PathVariable("id") long id) {
 
         employeeService.deleteEmployee(id);
