@@ -1,10 +1,14 @@
 package com.alaeldin.employee_department_api.controller;
 
 import com.alaeldin.employee_department_api.dto.DepartmentDto;
+import com.alaeldin.employee_department_api.dto.EmployeeDto;
 import com.alaeldin.employee_department_api.service.impl.DepartmentServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -20,6 +24,8 @@ import java.util.Map;
 public class DepartmentController
 {
   private final DepartmentServiceImpl departmentService;
+    private final PagedResourcesAssembler<DepartmentDto> pagedResourcesAssembler;
+
     @PostMapping()
     public ResponseEntity<String> saveDepartment(@Valid @RequestBody DepartmentDto
                                                            departmentDto)
@@ -29,23 +35,34 @@ public class DepartmentController
   }
 
   @GetMapping(value = "/search" ,produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<Page<DepartmentDto>> searchDepartment(@RequestParam String name
+  public ResponseEntity<PagedModel<EntityModel<DepartmentDto>>>searchDepartment(@RequestParam String name
                                                                ,@RequestParam(defaultValue = "0")
                                                                 int number
                                                                ,@RequestParam(defaultValue = "10")
-                                                                int size){
+                                                                int size)
+  {
 
-    return new ResponseEntity<>(departmentService.findByNameContainingIgnoreCase(name
-            ,number,size),HttpStatus.OK);
+      Page<DepartmentDto> departmentPage=departmentService.findByNameContainingIgnoreCase(name
+              ,number,size);
+      PagedModel<EntityModel<DepartmentDto>> pagedModel =  pagedResourcesAssembler
+                          .toModel(departmentPage, EntityModel::of);
+
+      return new ResponseEntity<>(pagedModel,HttpStatus.OK);
   }
 
   @GetMapping("/get-all-department")
-  public ResponseEntity<Page<DepartmentDto>> getAllDepartments(@RequestParam(defaultValue = "0")
+  public ResponseEntity<PagedModel<EntityModel<DepartmentDto>>> getAllDepartments(@RequestParam(defaultValue = "0")
                                                                    int number
-                                                               ,@RequestParam(defaultValue = "10")
-                                                                 int size){
+                                                                   ,@RequestParam(defaultValue = "10")
+                                                                    int size)
+  {
 
-    return new ResponseEntity<>(departmentService.getAllDepartment(number,size),HttpStatus.OK);
+      Page<DepartmentDto> departmentPage=departmentService.getAllDepartment(
+              number,size);
+      PagedModel<EntityModel<DepartmentDto>> pagedModel =  pagedResourcesAssembler
+              .toModel(departmentPage, EntityModel::of);
+
+      return new ResponseEntity<>(pagedModel,HttpStatus.OK);
   }
   @GetMapping("/get_department_by_id/{id}")
     public ResponseEntity<DepartmentDto> getAllDepartmentById(@PathVariable("id") long id){

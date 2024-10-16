@@ -44,9 +44,8 @@ public class EmploymentController
         Page<EmployeeDto> employeePage = employeeService.findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCaseOrEmailContainingIgnoreCase(
                 firstName, lastName, email, page, size);
 
-        // Wrap EmployeeDto in EntityModel
-        PagedModel<EntityModel<EmployeeDto>> pagedModel = pagedResourcesAssembler.toModel(employeePage, EntityModel::of
-        );
+        PagedModel<EntityModel<EmployeeDto>> pagedModel = pagedResourcesAssembler
+                                                           .toModel(employeePage, EntityModel::of);
 
         return new ResponseEntity<>(pagedModel, HttpStatus.OK);
     }
@@ -56,7 +55,8 @@ public class EmploymentController
                                                                @RequestParam(value = "size", defaultValue = "10") int size){
 
         Page<EmployeeDto> employeePage  = employeeService.getAllEmployees(number,size);
-        PagedModel<EntityModel<EmployeeDto>> pagedModel = pagedResourcesAssembler.toModel(employeePage, EntityModel::of);
+        PagedModel<EntityModel<EmployeeDto>> pagedModel = pagedResourcesAssembler
+                                                          .toModel(employeePage, EntityModel::of);
 
         return new ResponseEntity<>(pagedModel,HttpStatus.OK);
     }
