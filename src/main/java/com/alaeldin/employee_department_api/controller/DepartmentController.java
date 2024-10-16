@@ -64,11 +64,13 @@ public class DepartmentController
 
       return new ResponseEntity<>(pagedModel,HttpStatus.OK);
   }
+
   @GetMapping("/get_department_by_id/{id}")
     public ResponseEntity<DepartmentDto> getAllDepartmentById(@PathVariable("id") long id){
 
         return new ResponseEntity<>(departmentService.getDepartmentById(id),HttpStatus.OK);
     }
+
     @PostMapping("update/{id}")
     public ResponseEntity<String> updateDepartment(@RequestBody DepartmentDto departmentDto
             ,@PathVariable("id") long id){
@@ -78,7 +80,8 @@ public class DepartmentController
         return new ResponseEntity<>(departmentService
                 .updateDepartment(departmentDto),HttpStatus.OK);
     }
-    @GetMapping("delete/{id}")
+
+    @DeleteMapping("delete/{id}")
     public ResponseEntity<Map<String, String>> deleteDepartment(@PathVariable("id") long id) {
 
         departmentService.deleteDepartment(id);
