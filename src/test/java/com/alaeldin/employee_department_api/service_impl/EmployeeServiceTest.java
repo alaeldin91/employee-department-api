@@ -30,18 +30,15 @@ public class EmployeeServiceTest {
 
     @Mock
     private EmployeeRepository employeeRepository;
-
     @Mock
     private DepartmentRepository departmentRepository;
 
     @InjectMocks
     private EmployeeServiceImpl employeeService;
-
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
     }
-
     @Test
     public void whenSaveEmployee_thenReturnSuccessMessage() {
 
@@ -51,8 +48,10 @@ public class EmployeeServiceTest {
         Department department = new Department();
         when(departmentRepository.findById(1L)).thenReturn(Optional.of(department));
         when(employeeRepository.findByEmail("test@example.com")).thenReturn(Optional.empty());
+
         String result = employeeService.saveEmployee(employeeDto);
         Assertions.assertEquals("Employee saved successfully", result);
+
         verify(employeeRepository, times(1)).save(any(Employee.class));
     }
 
@@ -114,6 +113,7 @@ public class EmployeeServiceTest {
         employeeList.add(employee1);
         employeeList.add(employee2);
         Page<Employee> employeePage = new PageImpl<>(employeeList, PageRequest.of(pageNumber, pageSize), employeeList.size());
+
         when(employeeRepository.findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCaseOrEmailContainingIgnoreCase(
                 firstName, lastName, email, PageRequest.of(pageNumber, pageSize)
         )).thenReturn(employeePage);
@@ -126,6 +126,7 @@ public class EmployeeServiceTest {
         Assertions.assertEquals(1, result.getTotalPages());
         Assertions.assertEquals("John", result.getContent().get(0).getFirstName());
         Assertions.assertEquals("Jane", result.getContent().get(1).getFirstName());
+
         verify(employeeRepository).findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCaseOrEmailContainingIgnoreCase(
                 firstName, lastName, email, PageRequest.of(pageNumber, pageSize)
         );
@@ -155,8 +156,10 @@ public class EmployeeServiceTest {
         List<Employee> employees = Arrays.asList(employee1, employee2);
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
         Page<Employee> employeePage = new PageImpl<>(employees, pageable, employees.size());
+
         when(employeeRepository.findAll(pageable)).thenReturn(employeePage);
         Page<EmployeeDto> result = employeeService.getAllEmployees(pageNumber, pageSize);
+
         assertNotNull(result);
         Assertions.assertEquals(2, result.getTotalElements());
         Assertions.assertEquals(2, result.getContent().size());
@@ -201,6 +204,7 @@ public class EmployeeServiceTest {
         Assertions.assertEquals("Employee", exception.getResourceName());
         Assertions.assertEquals("id", exception.getFieldName());
         Assertions.assertEquals(employId, exception.getFieldValue());
+
         verify(employeeRepository, times(1)).findById(employId);
     }
 
@@ -216,8 +220,10 @@ public class EmployeeServiceTest {
         Department department = new Department();
         department.setName("Hr");
         existingEmployee.setDepartment(department);
+
         when(employeeRepository.findById(employeeId)).thenReturn(Optional.of(existingEmployee));
         employeeService.deleteEmployee(employeeId);
+
         verify(employeeRepository, times(1)).findById(employeeId);
         verify(employeeRepository, times(1)).delete(existingEmployee);
     }
@@ -234,6 +240,7 @@ public class EmployeeServiceTest {
         Assertions.assertEquals("employee", exception.getResourceName());
         Assertions.assertEquals("id", exception.getFieldName());
         Assertions.assertEquals(employeeId, exception.getFieldValue());
+
         verify(employeeRepository, times(1)).findById(employeeId);
         verify(employeeRepository, never()).delete(any());
     }
@@ -256,10 +263,13 @@ public class EmployeeServiceTest {
         Department department = new Department();
         department.setId(1);
         department.setName("Hr");
+
         when(employeeRepository.findById(employeeId)).thenReturn(Optional.of(existingEmployee));
         String result = employeeService.updateEmployee(employeeDto);
+
         Assertions.assertEquals("Employee updated successfully!", result);
         Assertions.assertEquals("Ahamed", existingEmployee.getFirstName());
+
         verify(employeeRepository, times(1)).findById(employeeId);
         verify(employeeRepository, times(1)).save(existingEmployee); // Ensure save was called
     }
@@ -271,11 +281,13 @@ public class EmployeeServiceTest {
         long employeeId = 1L;
         EmployeeDto employeeDto = new EmployeeDto();
         employeeDto.setId(employeeId);
-        employeeDto.setFirstName("Ahamed");
+        employeeDto.setFirstName("Ahmed");
         employeeDto.setLastName("Ali");
         employeeDto.setEmail("ahamed91@gmail.com");
         employeeDto.setDepartmentId(1);
+
         when(employeeRepository.findById(employeeId)).thenReturn(Optional.empty());
+
         ResourceNotFoundException exception = Assertions.assertThrows(ResourceNotFoundException.class, () -> {
             employeeService.updateEmployee(employeeDto);
         });
@@ -283,6 +295,7 @@ public class EmployeeServiceTest {
         assertEquals("Employee", exception.getResourceName());
         assertEquals("id", exception.getFieldName());
         assertEquals(employeeId, exception.getFieldValue());
+
         verify(employeeRepository, times(1)).findById(employeeId);
         verify(employeeRepository, never()).save(any());
     }

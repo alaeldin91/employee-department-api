@@ -8,7 +8,6 @@ import java.util.Optional;
 
 public interface DepartmentRepository extends JpaRepository<Department,Long>
 {
-    Page<Department> findByNameContainingIgnoreCase(String name
-                                                   ,Pageable pageable);
+    Page<Department> findByNameContainingIgnoreCase(String name,Pageable pageable);
     Optional<Department> findByName(String name);
 }

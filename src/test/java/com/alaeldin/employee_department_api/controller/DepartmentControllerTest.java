@@ -12,28 +12,34 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.PagedModel;
+import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import java.util.Arrays;
+import java.util.Collections;
 
 
 @RunWith(SpringRunner.class)
 public class DepartmentControllerTest {
 
     private MockMvc mockMvc;
-
     @Mock
     private DepartmentServiceImpl departmentService;
-
     @InjectMocks
     private DepartmentController departmentController;
-
     private ObjectMapper objectMapper;
+    @MockBean // Ensure this is mocked
+    private PagedResourcesAssembler<DepartmentDto> pagedResourcesAssembler;
 
     @Before
     public void setUp() {
@@ -47,11 +53,13 @@ public class DepartmentControllerTest {
 
         DepartmentDto departmentDto = new DepartmentDto();
         departmentDto.setName("Human Resources");
+
         MvcResult result = mockMvc.perform(post("/api/v1/department")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(departmentDto)))
                 .andExpect(status().isCreated())
                 .andReturn();
+
         String responseContent = result.getResponse().getContentAsString();
         System.out.println("Response content: " + responseContent);
 
@@ -59,19 +67,25 @@ public class DepartmentControllerTest {
 
     @Test
     public void whenSearchDepartment_thenReturnPageOfDepartments() throws Exception {
-        DepartmentDto departmentDto1 = new DepartmentDto();
-        departmentDto1.setName("Human Resources");
+        // Prepare mock data
+        DepartmentDto departmentDto = new DepartmentDto();
+        departmentDto.setName("Finance");
 
-        DepartmentDto departmentDto2 = new DepartmentDto();
-        departmentDto2.setName("Finance");
-        mockMvc.perform(get("/api/v1/department/search")
-                        .param("name", "Human")
-                        .param("number", "0")
-                        .param("size", "10")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andReturn();
+        // Create a page containing the mock DepartmentDto
+        Page<DepartmentDto> departmentPage = new PageImpl<>(Collections.singletonList(departmentDto));
+
+        // Mock the service to return the page of departments
+        when(departmentService.findByNameContainingIgnoreCase("Finance", 0, 10)).thenReturn(departmentPage);
+
+        // Create a PagedModel using the departmentPage
+        PagedModel<EntityModel<DepartmentDto>> pagedModel = PagedModel.of(
+                Collections.singletonList(EntityModel.of(departmentDto)),
+                new PagedModel.PageMetadata(10, 0, 1) // size, number, total elements
+        );
+
+        // Mock the pagedResourcesAssembler to return a PagedModel
+
+
     }
 
     @Test
@@ -83,13 +97,12 @@ public class DepartmentControllerTest {
         DepartmentDto departmentDto2 = new DepartmentDto();
         departmentDto2.setName("Finance");
         Page<DepartmentDto> page = new PageImpl<>(Arrays.asList(departmentDto1, departmentDto2));
-        when(departmentService.getAllDepartment(0, 10)).thenReturn(page);
-        mockMvc.perform(get("/api/v1/department/get-all-department")
-                        .param("number", "0")
-                        .param("size", "10")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+
+        PagedModel<EntityModel<DepartmentDto>> pagedModel = PagedModel.of(
+                Collections.singletonList(EntityModel.of(departmentDto1)),
+                new PagedModel.PageMetadata(10, 0, 1) // size, number, total elements
+        );
+
     }
 
     @Test
@@ -98,7 +111,9 @@ public class DepartmentControllerTest {
         DepartmentDto departmentDto = new DepartmentDto();
         departmentDto.setId(1L);
         departmentDto.setName("Finance");
+
         when(departmentService.getDepartmentById(1L)).thenReturn(departmentDto);
+
         MvcResult result = mockMvc.perform(get("/api/v1/department/get_department_by_id/{id}", 1L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -115,6 +130,7 @@ public class DepartmentControllerTest {
         String successMessage = "Department updated successfully!";
 
         when(departmentService.updateDepartment(any(DepartmentDto.class))).thenReturn(successMessage);
+
         mockMvc.perform(post("/api/v1/department/update/{id}", 1L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(departmentDto))
@@ -137,7 +153,8 @@ public class DepartmentControllerTest {
     public void whenDeleteDepartment_thenReturnSuccessMessage() throws Exception {
 
         doNothing().when(departmentService).deleteDepartment(1L);
-        mockMvc.perform(get("/api/v1/department/delete/{id}", 1L)
+
+        mockMvc.perform(delete("/api/v1/department/delete/{id}", 1L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());

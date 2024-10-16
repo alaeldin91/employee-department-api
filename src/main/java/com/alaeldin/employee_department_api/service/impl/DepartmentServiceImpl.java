@@ -57,6 +57,7 @@ public class DepartmentServiceImpl implements DepartmentService
                     + e.getMessage());
         }
     }
+
     @Override
     public Page<DepartmentDto> findByNameContainingIgnoreCase(String name
                                                               , int number
@@ -78,6 +79,7 @@ public class DepartmentServiceImpl implements DepartmentService
 
         return departments.map(MapperDepartment::mapToDepartmentDto);
     }
+
     @Override
     public DepartmentDto getDepartmentById(long id) {
 
@@ -88,6 +90,7 @@ public class DepartmentServiceImpl implements DepartmentService
 
         return MapperDepartment.mapToDepartmentDto(department);
     }
+
     @Override
     public void deleteDepartment(long id) {
 
@@ -96,6 +99,7 @@ public class DepartmentServiceImpl implements DepartmentService
                         "Department","id",id));
         departmentRepository.delete(department);
     }
+
     @Override
     public String updateDepartment(DepartmentDto departmentDto) {
 

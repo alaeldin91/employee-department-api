@@ -7,9 +7,7 @@ public interface EmployeeService
 {
     String saveEmployee(EmployeeDto employeeDto);
     Page<EmployeeDto>  findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCaseOrEmailContainingIgnoreCase(
-            String firstName, String lastName, String email
-            , int number
-            , int size);
+            String firstName, String lastName, String email, int number, int size);
     Page<EmployeeDto> getAllEmployees(int number
             ,int size);
     EmployeeDto getEmployeeById(long id);

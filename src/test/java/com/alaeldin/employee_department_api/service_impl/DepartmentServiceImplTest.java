@@ -33,10 +33,10 @@ public class DepartmentServiceImplTest
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        departmentDto = new DepartmentDto();  // Now class-level variable
+        departmentDto = new DepartmentDto();
         departmentDto.setName("IT Department");
 
-        department = new Department();  // Now class-level variable
+        department = new Department();
         department.setName("IT Department");
     }
 
@@ -50,6 +50,7 @@ public class DepartmentServiceImplTest
         });
 
         assertEquals("Department Already is found", exception.getMessage());
+
         verify(departmentRepository, times(1))
                 .findByName(departmentDto.getName());
         verify(departmentRepository, never()).save(any(Department.class));
@@ -69,9 +70,11 @@ public class DepartmentServiceImplTest
         department2.setName("Finance and Budgeting");
         List<Department> departments = Arrays.asList(department1, department2);
         Page<Department> departmentPage = new PageImpl<>(departments);
+
         when(departmentRepository.findByNameContainingIgnoreCase(name, PageRequest.of(pageNumber, pageSize)))
                 .thenReturn(departmentPage);
         Page<DepartmentDto> result = departmentService.findByNameContainingIgnoreCase(name, pageNumber, pageSize);
+
         assertNotNull(result);
         assertEquals(2, result.getTotalElements());
         assertEquals("Finance Department", result.getContent().get(0).getName());
@@ -92,13 +95,16 @@ public class DepartmentServiceImplTest
         List<Department> departments = Arrays.asList(department1, department2);
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
         Page<Department> departmentPage = new PageImpl<>(departments, pageable, departments.size());
+
         when(departmentRepository.findAll(pageable)).thenReturn(departmentPage);
         Page<DepartmentDto> result = departmentService.getAllDepartment(pageNumber, pageSize);
+
         assertNotNull(result);
         assertEquals(2, result.getTotalElements());
         assertEquals(2, result.getContent().size());
         assertEquals("HR", result.getContent().get(0).getName());
         assertEquals("Finance", result.getContent().get(1).getName());
+
         verify(departmentRepository, times(1)).findAll(pageable);
     }
 
@@ -111,9 +117,11 @@ public class DepartmentServiceImplTest
 
         when(departmentRepository.findById(departmentId)).thenReturn(Optional.of(department));
         DepartmentDto result = departmentService.getDepartmentById(departmentId);
+
         assertNotNull(result);
         assertEquals(departmentId, result.getId());
         assertEquals("HR", result.getName());
+
         verify(departmentRepository, times(1)).findById(departmentId);
     }
 
@@ -129,6 +137,7 @@ public class DepartmentServiceImplTest
         assertEquals("Department", exception.getResourceName());
         assertEquals("id", exception.getFieldName());
         assertEquals(departmentId, exception.getFieldValue());
+
         verify(departmentRepository, times(1)).findById(departmentId);
     }
 
@@ -150,6 +159,7 @@ public class DepartmentServiceImplTest
 
         assertEquals("Department updated successfully!", result);
         assertEquals("HR", existingDepartment.getName());
+
         verify(departmentRepository, times(1)).findById(departmentId);
         verify(departmentRepository, times(1)).save(existingDepartment); // Ensure save was called
     }
@@ -162,6 +172,7 @@ public class DepartmentServiceImplTest
         DepartmentDto departmentDto = new DepartmentDto();
         departmentDto.setId(departmentId);
         departmentDto.setName("HR");
+
         when(departmentRepository.findById(departmentId)).thenReturn(Optional.empty());
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
             departmentService.updateDepartment(departmentDto);
@@ -170,6 +181,7 @@ public class DepartmentServiceImplTest
         assertEquals("Department", exception.getResourceName());
         assertEquals("id", exception.getFieldName());
         assertEquals(departmentId, exception.getFieldValue());
+
         verify(departmentRepository, times(1)).findById(departmentId);
         verify(departmentRepository, never()).save(any());
     }
@@ -202,6 +214,7 @@ public class DepartmentServiceImplTest
         assertEquals("Department", exception.getResourceName());
         assertEquals("id", exception.getFieldName());
         assertEquals(departmentId, exception.getFieldValue());
+
         verify(departmentRepository, times(1)).findById(departmentId);
         verify(departmentRepository, never()).delete(any());
     }
