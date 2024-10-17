@@ -17,9 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
-import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedModel;
-import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -67,25 +65,16 @@ public class DepartmentControllerTest {
 
     @Test
     public void whenSearchDepartment_thenReturnPageOfDepartments() throws Exception {
-        // Prepare mock data
         DepartmentDto departmentDto = new DepartmentDto();
         departmentDto.setName("Finance");
 
-        // Create a page containing the mock DepartmentDto
         Page<DepartmentDto> departmentPage = new PageImpl<>(Collections.singletonList(departmentDto));
 
-        // Mock the service to return the page of departments
         when(departmentService.findByNameContainingIgnoreCase("Finance", 0, 10)).thenReturn(departmentPage);
 
-        // Create a PagedModel using the departmentPage
         PagedModel<EntityModel<DepartmentDto>> pagedModel = PagedModel.of(
                 Collections.singletonList(EntityModel.of(departmentDto)),
-                new PagedModel.PageMetadata(10, 0, 1) // size, number, total elements
-        );
-
-        // Mock the pagedResourcesAssembler to return a PagedModel
-
-
+                new PagedModel.PageMetadata(10, 0, 1));
     }
 
     @Test
