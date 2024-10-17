@@ -84,18 +84,23 @@ public class EmploymentControllerTest
         employeeDto.setLastName("Musa");
         employeeDto.setEmail("alaeldinmusa91@gmail.com");
         employeeDtos.add(employeeDto);
-        Page<EmployeeDto> employeePage = new PageImpl<>(employeeDtos, PageRequest.of(page, size), employeeDtos.size());
+        Page<EmployeeDto> employeePage = new PageImpl<>(employeeDtos, PageRequest.of(page, size)
+                , employeeDtos.size());
+
         when(employeeService.findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCaseOrEmailContainingIgnoreCase(
                 firstName, lastName, email, page, size)).thenReturn(employeePage);
+
         List<EntityModel<EmployeeDto>> entityModels = employeeDtos.stream()
                 .map(EntityModel::of)
                 .toList();
-        PagedModel<EntityModel<EmployeeDto>> pagedModel = PagedModel.of(entityModels, new PagedModel.PageMetadata(size, page, employeeDtos.size()));
+        PagedModel<EntityModel<EmployeeDto>> pagedModel = PagedModel.of(entityModels
+                , new PagedModel.PageMetadata(size, page, employeeDtos.size()));
 
         when(pagedResourcesAssembler.toModel(employeePage, EntityModel::of)).thenReturn(pagedModel);
         ResponseEntity<PagedModel<EntityModel<EmployeeDto>>> response = employeeController.searchEmployees(
                 firstName, lastName, email, page, size
         );
+
         System.out.println("Response: " + response);
         System.out.println("Response Body: " + response.getBody());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -125,7 +130,7 @@ public class EmploymentControllerTest
                             .accept(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk());
         } catch (Exception e) {
-            e.printStackTrace();  // Print the full stack trace for debugging
+            e.printStackTrace();
             throw e;
         }
     }
